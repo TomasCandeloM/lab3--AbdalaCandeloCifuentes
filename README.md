@@ -110,19 +110,19 @@ Para el proceso de subneteo en las redes IPv6 no se tiene informacion de cuantos
 
 **Subneteo de la intranet de INTRANET Bogotá**
 
-![SUBNETEO DE LA INTRANET DE INTRANETOTÁ](/image/Subneto_inteNet_Bog.png)
+![SUBNETEO DE LA INTRANET DE BOGOTÁ](Image/Subneto_inteNet_Bog.png)
 
 **Subneteo de la intranet de Madrid**
 
-![SUBNETEO DE LA INTRANET DE MADRID](/image/Subneto_inteNet_MAD.png)
+![SUBNETEO DE LA INTRANET DE MADRID](image/Subneto_inteNet_MAD.png)
 
 **Subneteo del DMZ y WAN entre R1_INTRANET y ISP_INTRANET**
 
-![SUBNETO DE LA RED DMZ Y WAN ENTRE R1_INTRANET Y ISP_INTRANET](/image/Subneteo_DMZ_R1-ISP.png)
+![SUBNETO DE LA RED DMZ Y WAN ENTRE R1_INTRANET Y ISP_INTRANET](image/Subneteo_DMZ_R1-ISP.png)
 
 **Subneteo del ISP_ESP**
 
-![SUBNETO DE LA RED ISP DE ESPAÑA](/image/Subneteo_R2-ISP_MAD.png)
+![SUBNETO DE LA RED ISP DE ESPAÑA](image/Subneteo_R2-ISP_MAD.png)
 
 
 Para el subneteo de los espacios de red IPv6 se realizo el mismo proceso para los 4 espacios, como estandar buscamos una longitud de interfaz de 64 bits por lo que en este caso el número de bits que hacen falta para cumplir este estandar es de 16 bits (64-48=16) lo que seria igual a un cuarteto de la dirección el cual va a ser nuestro identificador de subred. Una vez con esto sacamos las primeras 15 posibles subredes para cada espacio, unicamente para ver las primeras posiblidades que tenemos y solo seleccionamos la cantidad de subredes necesarias por el espacio de red:
@@ -137,7 +137,7 @@ Para el subneteo de los espacios de red IPv6 se realizo el mismo proceso para lo
 
 **Subneteo del espacio WAN**
 
-![SUBNETO DEL ESPACIO WAN(INTERNET)](/image/Subneto_internet.png)
+![SUBNETO DEL ESPACIO WAN(INTERNET)](image/Subneto_internet.png)
 
 Para este Subneteo el número de host pedidos por las especificaciones de la red es de 2 lo que da un total de 2 bits de reserva, lo que da una nueva mascara de subred con identificador 30 y un incremento de 4 en el cuarto octeto de la dirección. En este caso son necesarios 5 rangos de red para las conexiones entre los routers que pertenecen al internet
 
@@ -145,7 +145,7 @@ Para este Subneteo el número de host pedidos por las especificaciones de la red
 
 Finalmente con los Subneteos terminados pasamos a la construcción de la tabla de enrutamiento en la cual asignamos las direcciones IP a los diferentes dispositivos de la red y en los puertos que deben de ser asignadas, el resultado de esas asignaciones fue la siguiente tabla:
 
-![Tabla de direccionamiento en la red empresarial](/image/TABLA_DIRECCIONAMIENTO.png)
+![Tabla de direccionamiento en la red empresarial](image/TABLA_DIRECCIONAMIENTO.png)
 
 ****
 # Discusión de alternativas
@@ -415,7 +415,7 @@ Para comprobar la creación de la Access List, usamos el comando:
 ```
 R1_BOG# show access-lists
 ```
-![PRUEBA-ACL-BOGOTA](/image/PRUEBA-ACL-BOGOTA.png)
+![PRUEBA-ACL-BOGOTA](image/PRUEBA-ACL-BOGOTA.png)
 
 Para el R2_ESP, se uso la misma lógica que para el R1_BOG, estableciendo el Access List en la interfaz de salida del router. En este caso La Vlan de tesorería podría hacer uso únicamente del puerto 443 mientras que Vicepresidencia no podría hacer uso de este puerto ni tampoco del 80, por lo que ninguno de los dos protocolos debería funcionar para esta subred. Los comandos para esta Access List fueron los siguientes:
 
@@ -433,24 +433,24 @@ R2_ESP(config-if)#ipv6 traffic-filter ACL-MADRID out
 ```
 R2_ESP#show access-lists
 ```
-![PRUEBA-ACL-MADRID](/image/PRUEBA-ACL-MADRID.png)
+![PRUEBA-ACL-MADRID](image/PRUEBA-ACL-MADRID.png)
 
 Para ambos casos se añadió al final de las condiciones el comando “ipv6 permit any any” con el propósito de permitir cualquier envió de información aparte de las limitaciones establecidas en las Access Lists.
 A continuación, las comprobaciones de las Access Lists en cada una de las Vlan’s:
 
-![R1_BOG_PC1_ACCESS-LIST](/image/R1_BOG_PC1_ACCESS-LIST.jpg)
+![R1_BOG_PC1_ACCESS-LIST](image/R1_BOG_PC1_ACCESS-LIST.jpg)
 
-![R1_BOG_PC2_ACCESS-LIST](/image/R1_BOG_PC2_ACCESS-LIST.jpg)
+![R1_BOG_PC2_ACCESS-LIST](image/R1_BOG_PC2_ACCESS-LIST.jpg)
 
-![R2_ESP_PC5_ACCESS-LIST](/image/R2_ESP_PC5_ACCESS-LIST.jpg)
+![R2_ESP_PC5_ACCESS-LIST](image/R2_ESP_PC5_ACCESS-LIST.jpg)
 
-![R2_ESP_PC6_ACCESS-LIST](/image/R2_ESP_PC6_ACCESS-LIST.jpg)
+![R2_ESP_PC6_ACCESS-LIST](image/R2_ESP_PC6_ACCESS-LIST.jpg)
 
 ## Enrutamiento
 
 En este laboratorio, el enrutamiento constaba de varias partes. Primeramente, era necesario identificar los protocolos que se nos requerían en cada uno de los routers:
 
-![PROTOCOLOS_ENRUTAMIENTO](/image/PROTOCOLOS_ENRUTAMIENTO.jpg)
+![PROTOCOLOS_ENRUTAMIENTO](image/PROTOCOLOS_ENRUTAMIENTO.jpg)
 
 Como podemos ver, tenemos dos conexiones EIGRP que hará uso de IPv4, dos conexiones que usaran OSPF v2, una conexión que hará uso de EIGRP v6 y una ultima que hará uso de OSPF v3. Nos quedará faltando una conexión que es la que se establece entre ISP_FL y ISP_NET, para esta decidimos como grupo usar EIGRP.
 
@@ -522,11 +522,11 @@ ISP_BOG(config-router)#exit
 ```
 De esta manera los diferentes protocolos podrán aprender las rutas entre ellos, es necesario hacer este proceso en cada uno de los routers con el propósito de que todas las tablas de enrutamiento queden completas y funcionando correctamente.
 
-![TABLA-ENRUTAMIENTO-IPv4](/image/TABLA-ENRUTAMIENTO-ISP_BOG.png)
+![TABLA-ENRUTAMIENTO-IPv4](image/TABLA-ENRUTAMIENTO-ISP_BOG.png)
 
 En el pantallazo se puede ver la tabla de enrutamiento resultante, es importante mencionar que en los routers que requieran IPv6, se generara una tabla con cada tipo de direccionamiento, es decir, una con IPv4 y una con IPv6 en la que se mostrarán que hay en cada tipo de direcciones.
 
-![TABLA-ENRUTAMIENTO-IPv6](/image/TABLA-ENRUTAMIENTO-ISP_BOG-IPV6.png)
+![TABLA-ENRUTAMIENTO-IPv6](image/TABLA-ENRUTAMIENTO-ISP_BOG-IPV6.png)
 
 
 ## Tunneling 
@@ -563,7 +563,7 @@ ISP_BOG(config)# ipv6 route 2001:1200:C1::/48 2001:1200:A1:A::1
 
 Como se puede ver en la imagen las rutas quedaron configuradas de manera estatica a los respectivos destinos.
 
-![Rutas estaticas de los tuneles](/image/Rutas_Tunneles.png)
+![Rutas estaticas de los tuneles](image/Rutas_Tunneles.png)
 
 
 **** 
@@ -575,19 +575,19 @@ Para demostrar el correcto funcionamiento del direccionamiento dinámico a lo la
 
 **VLAN 50 (BOGOTÁ)**
 
-![PC 1 recibiendo su información de red de forma automática](/image/Direccionamiento_1.png)
+![PC 1 recibiendo su información de red de forma automática](image/Direccionamiento_1.png)
 
 **VLAN 100 (BOGOTÁ)**
 
-![PC 2 recibiendo su información de red de forma automática](/image/Direccionamiento_2.png)
+![PC 2 recibiendo su información de red de forma automática](image/Direccionamiento_2.png)
 
 **VLAN 25 (ESPAÑA)**
 
-![PC 5 recibiendo su información de red de forma automática](/image/Direccionamiento_3.png)
+![PC 5 recibiendo su información de red de forma automática](image/Direccionamiento_3.png)
 
 **VLAN 100 (ESPAÑA)**
 
-![PC 6 recibiendo su información de red de forma automática](/image/Direccionamiento_4.png)
+![PC 6 recibiendo su información de red de forma automática](image/Direccionamiento_4.png)
 
 
 ## Análisis de tráfico
@@ -601,41 +601,41 @@ Este análisis de tráfico corresponde al generado entre el PC5 y el PC1 cuando 
 
 Para empezar, como podemos ver en la siguiente captura, el ping es exitoso.
 
-![Resultado de ping exitoso entre pc5 y pc1](/image/Ping_PC1.png)
+![Resultado de ping exitoso entre pc5 y pc1](image/Ping_PC1.png)
 
 Vamos a analizar solo uno de los paquetes enviados como parte de este proceso ping. En la siguiente imagen se puede ver el camino entero que toma el paquete desde que sale del PC5, pasando por el internet, llegando al PC1 y siendo devuelto como respuesta hasta el PC5 una vez más.
 
-![Camino del paquete ping](/image/PDU_ronda.png)
+![Camino del paquete ping](image/PDU_ronda.png)
 
 Para empezar, como podemos ver, el paquete se envía en primera instancia con la diercción de destino del PC1, con dirección a su default gateway dado que esta dirección no está en su misma red.
 
-![Instancia inicial del paquete ping](/image/PDU_start.png)
+![Instancia inicial del paquete ping](image/PDU_start.png)
 
 A continuación, una vez llega a su default gateway se puede ver que, al ser un paquete que el router R2_ESP no conoce, se envía a su ruta estática por defecto, es decir a su ISP correspondiente.
 
-![El paquete es reenviado hacia el ISP](/image/PDU_outbound.png)
+![El paquete es reenviado hacia el ISP](image/PDU_outbound.png)
 
 Una vez llega al router ISP_ESP, este router identifica, gracias a su enrutamiento estático, que la dirección a la que necesita llegar al paquete se encuentra al otro lado de su tunel, por lo que encapsula al paquete en un paquete de dirección IPv4 de fuente **196.85.201.13**, es decir la dirección de la interfaz por la que el router está redireccionando el paquete, y destino **196.85.201.1**, es decir la dirección de llegada del tunel.
 
-![El paquete es encapsulado para IPv4](/image/PDU_tunnel_in.png)
+![El paquete es encapsulado para IPv4](image/PDU_tunnel_in.png)
 
 Cuando el paquete termina de pasar por el tunel, es recibido una vez más por la interfaz final del tunel, y una vez aquí el router ISP_BOG lo desencapsula para revelar el paquete original con dirección de fuente y destino IPv6 una vez más. Puesto que este router conoce, gracias al enrutamiento dinámico, que la red de destino se encuentra por ese camino, redirecciona el paquete hacia la interfaz que le conecta con la intranet del PC1.
 
-![El paquete es desencapsulado y redireccionado](/image/PDU_tunnel_out.png)
+![El paquete es desencapsulado y redireccionado](image/PDU_tunnel_out.png)
 
 Una vez el paquete se hace camino hasta el host de destino, este procesa el mensaje y envía una respuesta al ping, direccionandola al mismo host que le envió la petición en primer lugar.
 
 Igual que antes, el host no está en su misma red, por lo que se redirecciona a su default gateway.
 
-![El paquete es procesado y se envía una respuesta](/image/PDU_reply.png)
+![El paquete es procesado y se envía una respuesta](image/PDU_reply.png)
 
 El paquete pasa por exactamente el mismo proceso por el que pasó siendo enviado, puesto que los tuneles están configurados de la misma manera en los ISP_ESP e ISP_BOG, para finalmente volver al PC1, que realizó la solicitud, y ser procesado como exitoso.
 
-![El paquete es procesado como exitoso](/image/PDU_finish.png)
+![El paquete es procesado como exitoso](image/PDU_finish.png)
 
 Por supuesto, vale la pena mencionar que en cada paso en el que el paquete está en el Internet, este está siendo enrutado gracias a que la dirección de destino se compara con la tabla de enrutamiento que cada router ha construído y se redirecciona correspondientemente. Podemos ver un ejemplo de esto a continuación.
 
-![Camino del paquete ping](/image/PDU_routing.png)
+![Camino del paquete ping](image/PDU_routing.png)
 
 Así, podemos verificar que tanto nuestro método de migración como nuestro enrutamiento y direccionamiento funcionan correctamente para permitir la comunicación entre intranets.
 
@@ -647,23 +647,23 @@ Para este ejemplo, el PC5 intentará entrar a la página mediant HTTP y mediante
 
 Para empezar, veamos el tráfico realizado por un intento de acceso mediante protocolo HTTPS.
 
-![Tráfico generado por un intento HTTPS](/image/PDU2_start.png)
+![Tráfico generado por un intento HTTPS](image/PDU2_start.png)
 
 Como se puede ver, el intento contiene la totalidad de una petición DNS mediante la que traduce el nombre a una dirección IP, y una vez la obtiene realiza un proceso TCP el cual es exitoso de igual forma, lo que podemos asumir de ver que empieza y termina en el PC5 pasando por el Servidor Web.
 
 Ahora, miremos más detenidamente el filtro por el que pasa al intentar salir por el R2_ESP.
 
-![Comprobación contra ACL válida](/image/PDU2_valid.png)
+![Comprobación contra ACL válida](image/PDU2_valid.png)
 
 Efectivamente, el paquete es revisado contra la Access List que el puerto tiene configurada, y al no chocar con ningún criterio, es permitida gracias al mensaje final dentro de la misma.
 
 Así, verificamos que el PC5 puede entrar de forma exitosa a la página web solo usando el puerto que se le es permitido. Vamos a contrastar ahora lo que pasa si la petición TCP que usa es de tipo HTTP.
 
-![Tráfico generado por un intento HTTP](/image/PDU3_start.png)
+![Tráfico generado por un intento HTTP](image/PDU3_start.png)
 
 Como se puede ver, el tráfico es interrumpido a la mitad una vez se obtiene la dirección IP mediante el proceso DNS y se intenta salir de la red. A continuación, el router, devuleve una serie de mensajes que indican que el host no es alcanzable. Tomemos un vistazo más de cerca a lo que impide que el proceso termine viendo el paquete cuando pasa por R2_ESP.
 
-![Comprobación contra ACL denegada](/image/PDU3_finish.png)
+![Comprobación contra ACL denegada](image/PDU3_finish.png)
 
 Como se esperaba, al momento de ser comprobado contra la Access List que el puerto de salida tiene configurada, podemos ver que se deniega el acceso a cualquier paquete originario de la VLAN de Tesorería que esté intentando usar el puerto 80, y por tanto, es rechazado
 
