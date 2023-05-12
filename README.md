@@ -8,89 +8,17 @@ Carlos Farouk Abdalá Rincón
 
 ****
 # Planificación
-Para el desarrollo del proyecto, en un primer lugar tuvimos que realizar una labor de planeación en la que definiríamos todos los parámetros generales de la red a fin de facilitar el desarrollo más adelante. Para ello, y en primer lugar, decidimos guiarnos por las preguntas planteadas por los desafíos asignados a lo largo del corte para definir las generalidades del direccionamiento y enrutamiento requeridos. Las preguntas se encuentran a continuación.
+La planificación de este laboratorio tuvo como base los laboratorios presentados en los cortes anteriores, debido a aqu ela toplogía requerida era prácticamente la misma con la diferencia de los modelos de los routers ISP_BOG e ISP_ESP que fueron cambiados por motivos de seguridad que se explicaran más adelante.
 
-## Preguntas
+## Requerimientos Adicionales
 
-- **¿Cuántas subredes se necesitan?**  
+Como se mencionó, la base del laboratorio fue el proyecto del corte anterio por lo que unicamente además del cambio de los routers, se realizaron las siguientes adiciones según lo estipulado en el la guía.
+- Soporte de gestión de red en ambas Intranet utilizando el estándar SNMP: Para este punto se implemento el servicio de SNMP con ciertas restricciones que se explicarán en su respectiva sección
+- Soporte de Comunicación segura entre Intranets ¿Qué servicios se deben configurar?: TOMAS CANDELO JUAN PABLO MONTOYA
 
-Cada uno de los espacios de direccionamiento que nos dan tiene un número diferente de subredes necesarias, pero las generalidades son las siguientes:
+## IMPORTANTE
 
-• Las dos redes correspondientes a las Intranets necesitan un total de **3** subredes: 2 para las VLANs productivas y 1 para la VLAN troncal.
-
-• La red definida para la conexión DMZ e ISP en Bogotá necesita **2** subredes: 1 correspondiente al link que tiene el router de la intranet con su respectivo ISP y otra para la red demilitarizada.
-
-• La red definida para la conexión ISP en Madrid solo necesita **1** subred: La subred necesaria para el link entre el router de la intranet y el ISP en Madrid.
-
-• La red disponible para las direcciones loopback tan solo necesita **1** subred capaz de dar una dirección a todos los routers de la topología.
-
-• La red IPv4 definida para el Internet necesita de un total de **5** subredes, cada una asignada a los diferentes links que se crean entre los routers.
-
-- **¿Cuántos host/interfaces necesita cada subred?** 
-
-Gracias a que la gran mayoría de estos espacios son IPv6, no tenemos que preocuparnos por ello, puesto que todas las redes tendrán el mismo tamaño de 2^64 hosts, permitiendonos ignorar por completo este requisito.
-
-Sin embargo, para las redes IPv4 que tenemos que calcular, si es importante mencionar que cada una necesita un mínimo de **2** hosts, uno por cada interfaz de la conexión montada.
-
-- **¿Qué dispositivos se encuentran en cada subred?**
-
-La disposición de los dispositivos en las diferentes subredes es la siguiente:
-
-• Los PC1-4, los Switches_Intranet1-3 y la interfaz del R1_BOG que se conecta a ellos pertenecen a las diferentes VLANs de la Intranet Bogotá, con los dispositivos intermedios en la VLAN 99 y los hosts en las diferentes VLANs funcionales según lo indicado en la guía (50 y 100).
-
-• Los PC5-8, los Switches_Intranet4-5, el Multilayer-Switch0 y la interfaz del R2_ESP que se conecta a ellos pertenecen a las diferentes VLANs de la Intranet Madrid, con los dispositivos intermedios en la VLAN 1 y los hosts en las diferentes VLANs funcionales según lo indicado en la guía (25 y 100).
-
-• Los servidores Web y DNS, el Switch_DMZ y la interfaz del R1_BOG que se conecta a ellos pertenecen a la subred DMZ.
-
-• Las conexiones generadas entre los R1_BOG y R2_ESP y sus respectivos ISP pertenecen cada una a las subredes alocadas a esta función.
-
-• Los routers que componen el Internet, es decir, ISP_FL, ISP_NET y las interfaces correspondientes de ISP_ESP e ISP_BOG pertenecen a las diferentes subredes IPv4 preparadas para cada una de sus diferentes conexiones.
-
-- **¿Qué partes de la red utilizan direcciones publicas y que partes direcciones privadas?**  
-
-Una vez más, esta pregunta deja de tener sentido cuando hablamos de direccionamiento IPv6, pues esta distinción ya no es necesario a fin de ahorrar en número de direcciones disponibles. Si entendemos esta distinción sin embargo como que partes de la red necesitan una dirección GUA o LLA, entonces nos encontramos con que todos los dispositivos e interfaces que funcionen con el protocolo IPv6 utilizan tanto "públicas" como "privadas".
-
-En cuanto al direccionamiento que ocurre con IPv4, todas las conexiones son de tipo público, pues se refieren a aquellas redes que componen la parte pública del Internet, sin llegar a entrar a una LAN en ningún momento.
-
-- **¿Dónde deberían estar conservadas estas direcciones?** 
-
-Los servidores Web y DNS, Switches de las intranets (incluyendo el MLSW) y Routers deberían mantener siempre sus direcciones de forma estática, para no generar problemas con las puertas de enlace (routers), para permitir que todos los hosts puedan acceder a los diferentes servicios de la red de forma confiable (servers) y para mantener un sistema organizado respecto al ruteo de las VLANs truncales 99 y 1 (switches).
-
-Los PC pueden cambiar de dirección en cualquier momento, pues esto no afecta el funcionamiento de la red.
-
-- **¿Se requiere una asignación dinámica y/o estática? ¿Dónde?**
-
-En base a lo anterior, podemos ver que los dispositivos intermedios requieren de una asignación de IP estática, mientras que los dispositivos hosts, como los PC, requieren de una asignación dinámica. Este direccionamiento dinámico será de tipo stateless DHCPv6 por razones que trataremos más adelante.
-
-- **¿En que terminal se configuraron los servicios requeridos?**
-
-Los servicios de direccionamiento dinámico se configuraron en las interfaces de los routers R1_BOG y R2_ESP conectadas a sus respectivas intranets, puesto que son solo los PC quienes necesitan de este servicio.
-
-- **¿Qué servicio de IPv6 se debe configurar para para limitar el acceso al servidor web por el puerto 80 y 443 en las vlans especificas?**
-
-Se debe utilizar algún servicio de filtrado de paquetes. Por razones que discutiremos más adelante, el servicio escogido fue el de Access List, aunque vale la pena mencionar que se configuró en su versión IPv6, no IPv4. Esto debido a que la parte de la red con direccionamiento IPv4 no tiene ningún host al que denegar el acceso al servidor Web.
-
-- **¿Dónde se deben ubicar los ACLs?**
-
-La forma en la que planteamos nuestra solución requiere que las Access Lists se apliquen en las interfaces de salida de los routers conectados a cada intranet, es decir, en la interfaz FastEthernet0/0 del R1_BOG y en la interfaz Serial0/0/0 del R2_ESP
-
-- **¿En qué interfaces se deben configurar OSPF o EIGRP (no RIP) y/o rutas estáticas y redistribución entre protocolos?**
-
-Gracias a que la topología nos especifica las diferentes partes de la red en las que se deben aplicar los diferentes protocolos de enrutamiento, es fácil identificar las interfaces que requiere cada protocolo. Solo hay una conexión que queda a elección nuestra, y esta es la conección entre ISP_FL e ISP_NET, la cual terminamos eligiendo seria EIGRP.
-
-• La interfaz serial del R1_BOG y la interfaz a la que se conecta en el ISP_BOG llevan el protocolo OSPFv3.
-
-• La interfaz serial del R2_ESP y la interfaz a la que se conecta en el ISP_ESP llevan el protocolo EIGRPv6.
-
-• Las interfaces del ISP_FL en su totalidad y las interfaces a las que se conecta en el ISP_BOG, ISP_ESP e ISP_NET llevan el protocolo EIGRP.
-
-• Las interfaces del ISP_BOG e ISP_ESP que conectan al ISP_NET junto a las respectvas interfaces a las que se conectan llevan el protocolo OSPF.
-
-Ahora bien, para la redistribución entre protocolos nos limitamos únicamente a aquellos routers que comparten más de un 
-
-- **¿Qué servicio(s) de migración se debe(n) implementar para permitir el acceso al servidor Web instalado en el DMZ configurado completamente en IPv6?**
-
-Para el desarrollo de este proyecto decidimos utilizar el servicio de migración Tunneling, por lo que creamos un tunel virtual entre los routers ISP. Vale la pena mencionar que para el funcionamiento de este decidimos aprovecharnos del tamaño reducido del laboratorio y utilizar enrutamiento estático a fin de que funcionara esta conexión.
+Teniendo en cuenta lo anterior, la escrutura de la presente documentación se mantendrá como en el laboratorio del corte dos agregando las secciones "SNMP" y "Seguridad". Además de establecer cambios en las verificaciones, conclusiones y retos por los corresponientes al laboratorio del corte 3.
 
 ## Subneteo
 
@@ -448,7 +376,7 @@ A continuación, las comprobaciones de las Access Lists en cada una de las Vlan�
 
 ## Enrutamiento
 
-En este laboratorio, el enrutamiento constaba de varias partes. Primeramente, era necesario identificar los protocolos que se nos requerían en cada uno de los routers:
+El enrutamiento consta de varias partes. Primeramente, era necesario identificar los protocolos que se nos requerían en cada uno de los routers:
 
 ![PROTOCOLOS_ENRUTAMIENTO](Image/PROTOCOLOS_ENRUTAMIENTO.jpg)
 
@@ -530,7 +458,7 @@ En el pantallazo se puede ver la tabla de enrutamiento resultante, es importante
 
 
 ## Tunneling 
-Para finalizar con las configuraciones y poder establecer conexion entre intranets y que la intranet de madrid pueda acceder a la pagina web, es la configuración de un protocolo de migración, en este caso un tunnel que nos permitira concetar los dos espacios de redes IPv6 por medio de una red IPv4. Este tunnel sera configurado en los routers que tienen anbos protocolos funcionando en el mismo router, en este caso son los ISP de bogotá y España 
+Para poder establecer conexion entre intranets y que la intranet de madrid pueda acceder a la pagina web, es la configuración de un protocolo de migración, en este caso un tunnel que nos permitira concetar los dos espacios de redes IPv6 por medio de una red IPv4. Este tunnel sera configurado en los routers que tienen anbos protocolos funcionando en el mismo router, en este caso son los ISP de bogotá y España 
 
 Lo primero que hacemos es habilitar la interfaz del tunnel, esto se logra unicamente accediendo a la interfaz, luego le agregamos su dirección IPv6 y la fuente y destino del tunel, para la fuente se agrega la interfaz fisica conectada al router por la que se quiere enviar la información, para el caso del destino no se pone la interfaz del puerto de llegadoa, sino que se escribe la dirección IP vinculada a dicho puerto, por ultimo para terminar con la configuración basica se asigna el tipo de tunnel deseado, en este caso el tuene el de tipo ipv6ip, el cual simboliza que la encapsulación de los archivos ipv6 los transporta por medio de una encapsulación en ipv4 y este mismo es su medio de transporte 
 
@@ -565,7 +493,65 @@ Como se puede ver en la Imagen las rutas quedaron configuradas de manera estatic
 
 ![Rutas estaticas de los tuneles](Image/Rutas_Tunneles.png)
 
+## SNMP (Simple Network Management Protocol)
 
+Con la intención de brindar una alternativa más sencilla de gestión de las redes en España y Bogotá, se implemento el servicio SNMP que permite que los host de la red lograran gestionar las diferentes configuraciones de los diferentes dispositivos de red sin necesidad de interactuar físicamente con los mismos. Sin embargo, se requirió que se implementaran ciertas restricciones a la hora de implementar el protocolo.
+
+**Requerimientos:** Únicamente los PCs del Departamento de Tecnología y Vicepresidencia deben gestionar sus respectivas Intranets (set y get) utilizando SNMP.
+
+Primeramente se crearon o implementaron los protocolos SNMP en los routers R1_BOG y R2_ESP, esto con el propósito de brindarle a cada Intranet un protocolo para la gestión de sus propios dispositivos. Para ello se colocaron las Community Strings Read-Only y Read-Write habilitando de esta manera el servicio:
+
+```
+R1_BOG(cofig)#snmp-server community PUBLICBOG RO
+R1_BOG(cofig)#snmp-server community PRIVATEBOG RO
+
+```
+
+![Existencia SNMP Community Strings](Image/SNMP_COMMUNITY_STRINGS.png)
+
+De esta manera, ya se habrían creado los protocolos SNMP en cada una de las Intranets, sin embargo, para cumplir con los requerimientos, fue necesario hacer uso del servicio de ACL's nuevamente coin el propósito de bloquear el acceso a los puertos 161 y 162 de ciertas VLAN's (Ambos puertos correspondientes al servicio SNMP). Para ello se crearon nuevas ACL's:
+
+```
+R1_BOG(config)#ipv6 access-list NO-SNMP-ING
+R1_BOG(config-ipv6-acl)#deny udp 2001:1200:A1:2::/64 any eq 161
+R1_BOG(config-ipv6-acl)#deny udp 2001:1200:A1:2::/64 any eq 162
+R1_BOG(config-ipv6-acl)#ipv6 permit any any
+```
+La principal diferencia con los ACL antes usados es que al ser SNMP un protocolo que usa UDP para la transmisión de datos, es necesario usar este mismo protocolo para crear las ACL correspondientes.
+
+ A continuación, se implementaron en las interfaces de entrada de los routers, es decir, en el caso de Bogotá, en la interfaz FastEthernet0/1, especificando cada una de las subinterfaces para evitar cualquier tipo de error, y en la interfaz FastEthernet0/0 del R2_ESP con las mismas especifiaciones.
+
+```
+R1_BOG(config)#interface Fa0/1
+R1_BOG(config-if)#ipv6 traffic-filter NO-SNMP-ING in
+
+R1_BOG(config)#interface Fa0/1.100
+R1_BOG(config-if)#ipv6 traffic-filter NO-SNMP-ING in
+
+R1_BOG(config)#interface Fa0/1.50
+R1_BOG(config-if)#ipv6 traffic-filter NO-SNMP-ING in
+
+R1_BOG(config)#interface Fa0/1.99
+R1_BOG(config-if)#ipv6 traffic-filter NO-SNMP-ING in
+```
+
+Se puso en la interfaz de entrada para que los mensajes sean descartados por el router antes de que sean procesados, es decir, para que apenas lleguen a la interfaz Fa0/1, estos sean denegados en caso de cumplir con la restricción impuesta en la ACL.
+
+El proceso se repitio en el R2_ESP con los cambios básicos necesarios para que la VLAN de Tesorería no pudiera acceder al protocolo SNMP.
+
+A continuación, se muestran verificaciones de funcionamiento de lo establecido anteriormente:
+
+![Comprobación SNMP R1_BOG](Image/COMPROBACION_SNMP_R1_BOG.jpg)
+
+![Comprobación SNMP R2_ESP](Image/COMPROBACION_SNMP_R2_ESP.jpg)
+
+Como se puede ver, loscomputadores pertencecientes a las VLAN's de Tecnología en Bogotá y a Vicepresidencia en España, pueden obtener fácilemnte el nombre del sistema del router, pero las otras VLAN's, no puedene acceder debido a que el ACL les prohibe este acceso.
+
+![Denegación SNMP](Image/ACL_SNMP_MESSAGE.png)
+
+En la imagen se ve que efectivamente, el acceso ha sido administrativamente bloqueado, lo que significa el la ACL esta funcionando correctamente, cumpliendo con los requerimientos establecidos en la guía de laboratorio para este servicio.
+
+## Seguridad
 **** 
 # Verificación
 
