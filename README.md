@@ -704,7 +704,7 @@ El cambio de routers por temas de seguridad, requirio repetir gran parte del pro
 ****
 # Conclusiones
 
-Para conluir el desarrollo de este laboratorio, podemos llegar a varias ideas que nos dejo la actividad:
+Para concluir el desarrollo de este laboratorio, podemos llegar a varias ideas que nos dejo la actividad:
 
 - La primera es que la implementación de la seguridad, si bien es más sencilla de lo que se puede imaginaba, cumple funciones importantes que son de vital importancia para el desarrollo en el ambito real, por ello, el manejo y comprensión de esta temática resultó y resultará de bastante utilidad para el desarrollo de futuros proyectos.
 
