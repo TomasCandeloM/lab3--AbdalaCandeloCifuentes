@@ -552,7 +552,44 @@ Como se puede ver, loscomputadores pertencecientes a las VLAN's de Tecnología e
 En la imagen se ve que efectivamente, el acceso ha sido administrativamente bloqueado, lo que significa el la ACL esta funcionando correctamente, cumpliendo con los requerimientos establecidos en la guía de laboratorio para este servicio.
 
 ## Seguridad
+## Activación de Comandos de Seguridad / Licencia
+
+Como se menciono al inicio de la documentación, fue necesario cambiar los routesr ISP_BOG e ISP_ESP de modelos 2811 a modelos 2911, una característica especial de esté último es no poseer licencia para usar comandos de seguridad por defecto, por lo tanto, fue necesario después de reconfigurar los routers, activar esta licencia para poder comenzar a establecer una comunicación segura entre las Intranets Bogotá y España. 
+
+Para ello, se usaron los siguientes comandos
+
+```
+ISP_ESP (config)#license boot module c2900 technology-package securityk9
+```
+
+Con este comando se activan los protocolos de seguridad, y con esto se puede comenzar a configurar este mismo campo.
+
+![Licencias](Image/LICENSES.png)
+
+Ahora, es empezará con el proceso de Encriptación y el uso del servicio VPN.
+
+## Crypto IPSec
+
+En el establecimiento de del Crypto IPSec, se especifican:
+- El protocolo de encriptamiento, en este caso será "esp-aes 256". ESP (Enacpuslating Security Payload)es usado en redes IPSec para dar confidencialidad integridad y autentiacción a los mensajes, mientras que AES (Advanced Encryption Standard) es un algoritmo para cifrar los mensajes, en este caso con una clave de cifrado de 256 bits, generando que el descubirmiento de esta clave de manera no autorizada sea casi imposible.
+- El protocolo de autenticación que en este caso será "esp-sha-hmac". ESP es el mismo que se menciono anteriormente, SHA (Secure Hash Algortihm) se refiere a una función hash de criptografía que cumple el propósito de garantizar la integridad de los datos que se transmiten, y por último MAC (Hash-Based Message Authentication Code) que se refiere al código de autenticación que asegura que los mensajes no sean alterados durante su transimisón hacía su destino, en este caso pasado en hash.
+
+De esta manera se estableceran los protocolos de encriptamiento que se aplicaran a nuestra ruta de transmisión para proteger la seguridad e integridad de los datos que requieran pasar por ella:
+
+```
+ISP_ESP(config)# crypto ipsec transform-set VPN/BOG-ESP esp-aes 256 esp-sha-hmac
+```
+## Crypto Key
+
+Es necesario que se los mensajes que se transmitan desde una de las Intranet, sean recibidos de una manera apropiada por la otra, por lo que es necesario que ambas partes tengan la llave de autenticación para descifrar el mensaje y entregarlo al dispositivo que tenga como destino de manera comprensible. por ello, usamos el código:
+
+```
+ISP_BOG(config)#crypto isakmp key SECRETVPN address ipv6 2001:1200:D1:1::1/64
+```
+
+Con este comando aseguramos que el ISP_BOG sepa con que dirección debe desencriptar la inforamción con la condición de que el otro router posea la contraseña vinculada a la dirección de la interfaz del ISP_BOG, es decir el ISP_ESP debe tener configurado el mismo comando con la dirección del ISP_BOG para que pueda establecerse ua conexión segura que encripte la oinformción entre los dos routers y la descifre cuando ya se encuentre en el destno correspondiente.
 **** 
+
 # Verificación
 
 ## Capturas del funcionamiento
@@ -658,26 +695,8 @@ Con esto, hemos verificado de igual forma que el protocolo de filtrado de paquet
 ****
 # Retos y recomendaciones
 
-En cuanto al direccionamiento de este proyecto, el único reto que enfrentamos fue la incorrecta asignación original de direcciones IPv4 para el Internet, lo que llevó a errores en el posterior enrutamiento.
-
-Para ello, recomendamos no perder la concentración o confiarse en demasía debido a lo simple que es el enrutamiento IPv6, y revisar siempre las interfaces que están conectadas en la topología antes de empezar a realizar la tabla de enrutamiento que dictará las direcciones que debe tener cada interfaz.
-
-Consideramos que uno de los retos que más atención nos demandó fue el tema del enrutamiento, pues si bien ya se había desarrollado algún tipo de práctica con uno de los dos, el hecho de tener que manejar dos protocolos al mismo tiempo y aparte requerir de Tunneling debido al IPv6, generó bastantes confusiones durante el desarrollo, sin embargo, tras consultar bastante, se lograron solucionar las dificultades que principalmente se habían generado por errores a la hora de ingresar el direccionamiento.
-
-Las ACL’s solo presentaron ciertas dificultades en la Intranet de Madrid, pues sin saber por que, estas no funcionaban correctamente, se trataron de hacer modificaciones varias sin ningún resultado, hasta que finalmente funcionaron, se considera que fue por algún fallo de Cisco Packet Tracer, pues estas funcionaron después de reiniciar el programa, o si no, por algún error no descubierto a la hora de ingresar las direcciones. Sin embargo, esta situación no genero mayor problema a la hora de desarrollar el laboratorio, pues como ya se mencionó, se soluciono al reiniciar el programa.
-
-El ultimo de los retos que se nos presentaron fue la configuración del tunnel ya que no contabamos con la experiencia ni la información suficiente para poder realizar la configuración, sin embargo con las alcaraciones realizadas por el profesor, además de la documentación utilizada para entender como funciona logramos solucionar los problemas presentados en base a las decisiones que tomamos para la configuración. 
-
-La recomendación que podemos dar en base a este protocolo de migración es que en caso de tener solo dos redes interconectadas por la red IPv4, la configuración del enrutamiento es mucho más sencillo realizarla de manera estatica ya que la cantidad de especificaciones de rutas que se debe hacer no es alta y es más facil que realizar enrutamiento dinamico.
-
 
 ****
 # Conclusiones
-Para finalizar esta práctica, nos gustaría concluír unas cuantas cosas.
 
-Para empezar, queremos recalcar lo sencillo que es trabajar con IPv6 respecto a trabajar con IPv4. Con esto nos referimos a cada parte del proceso, desde el subneteo, que se convierte en una tarea trivial, pasando por el direccionamiento dinámico, que es tan simple como permitir que cada host construya su propia dirección y reciba la información restante, hasta el enrutamiento, en cuyo caso solo hay que asignar los protocolos a las interfaces y dejar que hagan ellas el resto del trabajo.
-
-A su vez, queremos recalcar lo útil que es ver en acción todos los protocolos de red en una simulación más acercada a la realidad. Ver el funcionamiento detenido de un proceso de Tunneling, por poner un ejemplo, es de gran ayuda para entender la forma en la que se empaquetan los mensajes y se procesan a lo largo de la topología hasta ser desempaquetados una vez más.
-
-De igual manera, poder experimentar las configuraciones simultaneas de redes IPv4 con redes IPv6 nos permitio observar como trabajan estas dos en la actualidad y como, en un futuro, existira una mayor concentración de redes IPv6 que permitira el paso y la transformación de redes IPv4 a IPv6 de manera mucho más natural y sencilla 
 
