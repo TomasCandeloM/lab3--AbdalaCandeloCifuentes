@@ -695,8 +695,20 @@ Con esto, hemos verificado de igual forma que el protocolo de filtrado de paquet
 ****
 # Retos y recomendaciones
 
+El desarrollo de este laboratorio vino acompañado por bastantes desafíos principalmnete relacionado con la seguridad de comunicación-
+
+Sin embrago, aunque gran parte del tiempo se dedico al área anteriormente mencionada, la implementación de nuevos ACL en los routers R1_BOG y R2_ESP cambiando en parte la manera en la que se habían manejado anteriormente las ACL, significo un reto debido a que se debió replantear la forma anterior de usarlas, sin embargo no demando mayor esfuerzo.
+
+El cambio de routers por temas de seguridad, requirio repetir gran parte del proceso desarrollado durante el laboratorio anterior, además de manipular los temas de licencias que por el momento eran desconocidos para el equipo de trabajo, por lo que significo una gran investigación para poder ejecutar todos los comandos de seguridad en routers que no los tenian por defecto como se habían manejado anteriormente.
 
 ****
 # Conclusiones
+
+Para conluir el desarrollo de este laboratorio, podemos llegar a varias ideas que nos dejo la actividad:
+
+- La primera es que la implementación de la seguridad, si bien es más sencilla de lo que se puede imaginaba, cumple funciones importantes que son de vital importancia para el desarrollo en el ambito real, por ello, el manejo y comprensión de esta temática resultó y resultará de bastante utilidad para el desarrollo de futuros proyectos.
+
+- El manejo de permisos relacionados con SNMP son vitales para evitar intrusiones o cambios en los dispositivos de red no cpnsetidos. Por ello es importante realizar las verificaciones pertinentes para comprobar que ningún dispositivo no deseado pueda acceder a estos servicios tan delicados.
+
 
 
