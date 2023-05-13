@@ -13,12 +13,12 @@ La planificación de este laboratorio tuvo como base los laboratorios presentado
 ## Requerimientos Adicionales
 
 Como se mencionó, la base del laboratorio fue el proyecto del corte anterio por lo que unicamente además del cambio de los routers, se realizaron las siguientes adiciones según lo estipulado en el la guía.
-- Soporte de gestión de red en ambas Intranet utilizando el estándar SNMP: Para este punto se implemento el servicio de SNMP con ciertas restricciones que se explicarán en su respectiva sección
-- Soporte de Comunicación segura entre Intranets ¿Qué servicios se deben configurar?: TOMAS CANDELO JUAN PABLO MONTOYA
+- Soporte de gestión de red en ambas Intranet utilizando el estándar SNMP
+- Soporte de Comunicación segura entre Intranets ¿Qué servicios se deben configurar?
 
 ## IMPORTANTE
 
-Teniendo en cuenta lo anterior, la escrutura de la presente documentación se mantendrá como en el laboratorio del corte dos agregando las secciones "SNMP" y "Seguridad". Además de establecer cambios en las verificaciones, conclusiones y retos por los corresponientes al laboratorio del corte 3.
+Teniendo en cuenta lo anterior, la estructura de la presente documentación se mantendrá como en el laboratorio del corte dos agregando las secciones "SNMP" y "Seguridad". Además de establecer cambios en las verificaciones, conclusiones y retos por los corresponientes al laboratorio del corte 3.
 
 ## Subneteo
 
