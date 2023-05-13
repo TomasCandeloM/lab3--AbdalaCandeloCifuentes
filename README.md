@@ -603,7 +603,7 @@ ISP_BOG(config)# group 5
 
 La configuración de la policy nos permitira establecer la comunicación entre los routers ISP, para esto en el primer comando elegimos el grupo de politicas 10 el cual es el más recomendado pora esta configuración, posteriormente al igual que el el isakmp key definimos el metodo de encreptacion en el que sera enviada la trama y el tamaño del paquete, despues aplicamos el metodo de autenticación y el grupo diffie-Hellman.La autenticación pre-share requiere que los routers tengan la misma contraseña para establecer conexión la cual se define con el isakmp key  
 
-**ACL de activación**
+## ACL de activación
 
 Para que el protocolo se pueda inciar vamos a definir un grupo de direcciones las cuales activen el VPN para esto creamos un access list que permite el traficoque pasa del ISP_BOG hasta el ISP_ESP ya que todos los paquetes que llegan al ISP_BOG son encapsulados en IPV4 debido al tunnel configurado para la comunicación de las dos redes IPV6 
 
@@ -611,7 +611,8 @@ Para que el protocolo se pueda inciar vamos a definir un grupo de direcciones la
 ISP_BOG(config)# access-list 100 permit ip host 196.86.201.1 host 196.86.201.13
 ```
 
-**Crypto map**
+## Crypto map
+
 una vez hemos creado lo necesario ya podemos generar nuestro crypto map el cual es el que define toda nuestra comunicación VPN 
 
 ```
@@ -629,23 +630,6 @@ En esta configuración establecemos quien sera el compañero con el que establec
 Para terminar con la configuración VPN asignamos el mapa a la interfaz fuente fisica de nuestro tunnel, en este caso a la serial 0/1/0.
 
 Toda esta confuración se realiza de manera simetrica en el otro router ISP_ESP
-
-
-## Verificación VPN / Crypto
-
-Para la verificación de la comunicación segura por medio del VPN realizamos un ping desde el PC3 en la intranet de Bogotá hacia el PC8 en la intranet de Madrid, como podemos ver en la imagen cuando el paquete llega al router ISP_BOG lo primero de lo que se da cuenta es que la dirección cumple con las condiciones dadas en el ACL por lo que activa el VPN y empieza el proceso de encriptación, primero el IPSEC encapsula y prepara el paquete para encriptar, luego el ESP reliza la encriptación por este metodo, una vez esta encriptado revisa su tabla de enrutamiento y envia el paquete
-
-![Proceso de encriptación](Image/verificación_encriptacion_ISPBOG.png)
-
-Una vez el paquete llega al ISP_ESP el proceso que realiza este es el de desencriptación para esto lo primo que se haces es que esl ESP detecta el mensaje encriptado por lo que busca una coincidencia en su SPI, cuando encuentra la contraseña que coincide desncripta el paquete. Ya desencriptado el paquetee sigue su curso normal y es enviado al destino. 
-
-![Proceso de desencriptación](Image/verificación_desencriptacion_ISPESP.png)
-
-
-Cuando el destino genera una respuesta esta se envia hacia el host que realizo la solicitud, realizando el mismo porceso de encriptación y desencriptación solo que esta vez el ISP_ESP sera el encargado de encriptar el mensaje y el router ISP_BOG sera el que lo desencripte para que el host que realizo la solicitud obtenga su respuesta, como se ve en la imagen.
-
-![Respuesta generada en el PC3](Image/RespuestaPC8.png)
-
 
 **** 
 
@@ -751,6 +735,20 @@ Como se esperaba, al momento de ser comprobado contra la Access List que el puer
 
 Con esto, hemos verificado de igual forma que el protocolo de filtrado de paquetes escogido funciona correctamente y de acuerdo a lo que el laboratorio nos exige.
 
+## Crypto
+
+Para la verificación de la comunicación segura por medio del VPN realizamos un ping desde el PC3 en la intranet de Bogotá hacia el PC8 en la intranet de Madrid, como podemos ver en la imagen cuando el paquete llega al router ISP_BOG lo primero de lo que se da cuenta es que la dirección cumple con las condiciones dadas en el ACL por lo que activa el VPN y empieza el proceso de encriptación, primero el IPSEC encapsula y prepara el paquete para encriptar, luego el ESP reliza la encriptación por este metodo, una vez esta encriptado revisa su tabla de enrutamiento y envia el paquete
+
+![Proceso de encriptación](Image/verificación_encriptacion_ISPBOG.png)
+
+Una vez el paquete llega al ISP_ESP el proceso que realiza este es el de desencriptación para esto lo primo que se haces es que esl ESP detecta el mensaje encriptado por lo que busca una coincidencia en su SPI, cuando encuentra la contraseña que coincide desncripta el paquete. Ya desencriptado el paquetee sigue su curso normal y es enviado al destino. 
+
+![Proceso de desencriptación](Image/verificación_desencriptacion_ISPESP.png)
+
+
+Cuando el destino genera una respuesta esta se envia hacia el host que realizo la solicitud, realizando el mismo porceso de encriptación y desencriptación solo que esta vez el ISP_ESP sera el encargado de encriptar el mensaje y el router ISP_BOG sera el que lo desencripte para que el host que realizo la solicitud obtenga su respuesta, como se ve en la imagen.
+
+![Respuesta generada en el PC3](Image/RespuestaPC8.png)
 ****
 # Retos y recomendaciones
 
