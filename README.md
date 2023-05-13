@@ -587,7 +587,66 @@ Es necesario que se los mensajes que se transmitan desde una de las Intranet, se
 ISP_BOG(config)#crypto isakmp key SECRETVPN address ipv6 2001:1200:D1:1::1/64
 ```
 
-Con este comando aseguramos que el ISP_BOG sepa con que dirección debe desencriptar la inforamción con la condición de que el otro router posea la contraseña vinculada a la dirección de la interfaz del ISP_BOG, es decir el ISP_ESP debe tener configurado el mismo comando con la dirección del ISP_BOG para que pueda establecerse ua conexión segura que encripte la oinformción entre los dos routers y la descifre cuando ya se encuentre en el destno correspondiente.
+Con este comando aseguramos que el ISP_BOG sepa con que dirección debe desencriptar la inforamción con la condición de que el otro router posea la contraseña vinculada a la dirección de la interfaz del ISP_BOG, es decir el ISP_ESP debe tener configurado el mismo comando con la dirección del ISP_BOG para que pueda establecerse ua conexión segura que encripte la oinformción entre los dos routers y la descifre cuando ya se encuentre en el destino correspondiente.
+
+## Crypto isakmp Policy
+
+Una vez tenemos configurado la llava con la cual nuestros routers sabran la clave para desencriptar los paquetes que sean enviados entre ellos necesitamos generar la comuniccación entre ellos, para esto necesitamos configurar las politicas que seguira el isakmp. Los comandos necesarios para este eapartado seran los siguientes 
+
+```
+ISP_BOG(config)# crypto isakmp policy 10 
+ISP_BOG(config)# encr aes 256
+ISP_BOG(config)# autentication pre-share 
+ISP_BOG(config)# group 5
+
+```
+
+La configuración de la policy nos permitira establecer la comunicación entre los routers ISP, para esto en el primer comando elegimos el grupo de politicas 10 el cual es el más recomendado pora esta configuración, posteriormente al igual que el el isakmp key definimos el metodo de encreptacion en el que sera enviada la trama y el tamaño del paquete, despues aplicamos el metodo de autenticación y el grupo diffie-Hellman.La autenticación pre-share requiere que los routers tengan la misma contraseña para establecer conexión la cual se define con el isakmp key  
+
+**ACL de activación**
+
+Para que el protocolo se pueda inciar vamos a definir un grupo de direcciones las cuales activen el VPN para esto creamos un access list que permite el traficoque pasa del ISP_BOG hasta el ISP_ESP ya que todos los paquetes que llegan al ISP_BOG son encapsulados en IPV4 debido al tunnel configurado para la comunicación de las dos redes IPV6 
+
+```
+ISP_BOG(config)# access-list 100 permit ip host 196.86.201.1 host 196.86.201.13
+```
+
+**Crypto map**
+una vez hemos creado lo necesario ya podemos generar nuestro crypto map el cual es el que define toda nuestra comunicación VPN 
+
+```
+ISP_BOG(config)# crypto map VPN-MAP 10-ipsec-isakmp
+ISP_BOG(crypto-map)# peer 196.85.201.13
+ISP_BOG(crypto-map)# pfs group 5 
+ISP_BOG(crypto-map)# security-association lifetime seconds 86400
+ISP_BOG(crypto-map)# set transform-set BOG->ESP
+ISP_BOG(crypto-map)# match address 100 
+
+```
+
+En esta configuración establecemos quien sera el compañero con el que establecera la comunicación, el tiempo maximo de espera en el que va a tratar de establecer dicha conexión segura, el transform-set que definimos anteriormente y por ultimo el match address que es el access-list que va a activa la comunicación. 
+
+Para terminar con la configuración VPN asignamos el mapa a la interfaz fuente fisica de nuestro tunnel, en este caso a la serial 0/1/0.
+
+Toda esta confuración se realiza de manera simetrica en el otro router ISP_ESP
+
+
+## Verificación VPN / Crypto
+
+Para la verificación de la comunicación segura por medio del VPN realizamos un ping desde el PC3 en la intranet de Bogotá hacia el PC8 en la intranet de Madrid, como podemos ver en la imagen cuando el paquete llega al router ISP_BOG lo primero de lo que se da cuenta es que la dirección cumple con las condiciones dadas en el ACL por lo que activa el VPN y empieza el proceso de encriptación, primero el IPSEC encapsula y prepara el paquete para encriptar, luego el ESP reliza la encriptación por este metodo, una vez esta encriptado revisa su tabla de enrutamiento y envia el paquete
+
+![Proceso de encriptación](Image/verificación_encriptacion_ISPBOG.png)
+
+Una vez el paquete llega al ISP_ESP el proceso que realiza este es el de desencriptación para esto lo primo que se haces es que esl ESP detecta el mensaje encriptado por lo que busca una coincidencia en su SPI, cuando encuentra la contraseña que coincide desncripta el paquete. Ya desencriptado el paquetee sigue su curso normal y es enviado al destino. 
+
+![Proceso de desencriptación](Image/verificación_desencriptacion_ISPESP.png)
+
+
+Cuando el destino genera una respuesta esta se envia hacia el host que realizo la solicitud, realizando el mismo porceso de encriptación y desencriptación solo que esta vez el ISP_ESP sera el encargado de encriptar el mensaje y el router ISP_BOG sera el que lo desencripte para que el host que realizo la solicitud obtenga su respuesta, como se ve en la imagen.
+
+![Respuesta generada en el PC3](Image/RespuestaPC8.png)
+
+
 **** 
 
 # Verificación
@@ -695,9 +754,13 @@ Con esto, hemos verificado de igual forma que el protocolo de filtrado de paquet
 ****
 # Retos y recomendaciones
 
-El desarrollo de este laboratorio vino acompañado por bastantes desafíos principalmnete relacionado con la seguridad de comunicación-
+El desarrollo de este laboratorio vino acompañado por bastantes desafíos principalmente relacionado con la seguridad de comunicación.
 
-Sin embrago, aunque gran parte del tiempo se dedico al área anteriormente mencionada, la implementación de nuevos ACL en los routers R1_BOG y R2_ESP cambiando en parte la manera en la que se habían manejado anteriormente las ACL, significo un reto debido a que se debió replantear la forma anterior de usarlas, sin embargo no demando mayor esfuerzo.
+Uno de los principales retos que tuvimos fue en general el funcionamiento del VPN ya que era un protocolo del cual no conocimos mucho sobre su configuración y caracteracteristicas, por lo que buscar documentacion que incluyese lo necesario para realizar este protocolo fue complejo, ademas la selección del propio portocolo de seguridad fue un reto ya que tuvimos que buscar el protocolo que mas se ajuste a nuesta topologia, optamos por este VPN ya que es de las opciones más sencillas de configurar y que mejores caracteristicas de seguridad ofrece
+
+En cuanto a las recomendaciones, la principal recomendación es que al momento de configurar el VPN la configuración se realice en el orden que fue presentada en este laboratorio ya que genera menor confuncón sobre todo a la hora de crear el crypto map para que no exista el error de no configurar correctamente algun aspecto individual del mapa o que de por si alguna caracteristica de este se quede fuera, especialmente el access-list que detonara y activara la comunicación segura 
+
+Aunque gran parte del tiempo se dedico al área anteriormente mencionada, la implementación de nuevos ACL en los routers R1_BOG y R2_ESP cambiando en parte la manera en la que se habían manejado anteriormente las ACL, significo un reto debido a que se debió replantear la forma anterior de usarlas, sin embargo no demando mayor esfuerzo.
 
 El cambio de routers por temas de seguridad, requirio repetir gran parte del proceso desarrollado durante el laboratorio anterior, además de manipular los temas de licencias que por el momento eran desconocidos para el equipo de trabajo, por lo que significo una gran investigación para poder ejecutar todos los comandos de seguridad en routers que no los tenian por defecto como se habían manejado anteriormente.
 
@@ -709,6 +772,10 @@ Para conluir el desarrollo de este laboratorio, podemos llegar a varias ideas qu
 - La primera es que la implementación de la seguridad, si bien es más sencilla de lo que se puede imaginaba, cumple funciones importantes que son de vital importancia para el desarrollo en el ambito real, por ello, el manejo y comprensión de esta temática resultó y resultará de bastante utilidad para el desarrollo de futuros proyectos.
 
 - El manejo de permisos relacionados con SNMP son vitales para evitar intrusiones o cambios en los dispositivos de red no cpnsetidos. Por ello es importante realizar las verificaciones pertinentes para comprobar que ningún dispositivo no deseado pueda acceder a estos servicios tan delicados.
+
+- Podemos concluir que el protocolo de comunicación segura por medio de VPN es una alternativa bastante comun que de igual manera ofrece una seguridad muy buena para el trafico seguro de los paquetes entre dos intranets, ademas de que permite una encriptación pribada ya que unicamente el dispositivo con el que se desea hacer comunicación es el que tendra la contraseña que se necesita para identificar los paquetes dirigidos a él y desencriptarlos, lo cual garantiza que paquetes que no cuenten con esta contraseña seran desechados y no llegaran a ingresar a las redes internas evitando asi paquetes no deseados.
+
+
 
 
 
