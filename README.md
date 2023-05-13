@@ -1,4 +1,4 @@
-# Laboratorio #2 - Administración de Redes 
+# Laboratorio #3 - Administración de Redes 
 ## Integrantes
 Juan José Cifuentes Cuellar
 
@@ -90,6 +90,16 @@ Sin embargo, cuando hablamos del direccionamiento dinámico que tienen que tener
 >**Opción 3:** Utilizar un servicio DHCPv6 stateless. A pesar de que la configuración no es tan simple como la opción 2, esta opción tiene la ventaja de que permite que los diferentes hosts se hagan cargo de su propia dirección IP encima de entregarles el resto de información relevante, en este caso, dirección de servidor DNS.
 
 Finalmente, nos decantamos por la tercera opción, por lo que configuramos la **flag O** y configuramos en cada una de las subinterfaces de las diferentes VLAN una pool de direcciones DHCP que, si bien contenía la dirección del servidor DNS, no nos exigía configurar todos los diferentes rangos de direccionamiento, permitiendo su reutilización en todas las subinterfaces independiente del rango de direccionamiento correspondiente a sus VLAN.
+
+## Seguridad 
+
+Para la configuración de la comunicación segura entre los routers ISP de España y Bogota consideramos principalemente 3 diferentes alternativas ACL, VPN oGRE tunnel. 
+
+Opción ACL: Esta alternativa consistia en configurar direntes ACLs que fuecen capaces de filtrar el trafico a modo que este genere seguridad en la comunicación, sin embargo al investigar esta alternativa nos dimos cuenta de que la seguridad que esta proveia no era suficiente y su configuración requeria de mayor especifidad de la necesaria por lo que finalmente descartamos esta alternativa
+
+Opción Tunnel GRE: Esta alternativa consiste en configurar un tunnel de tipo GRE para que el trafico que va a existir entre los ISP se transporte por medio de este garantizando la conexión segura entre estos dos extremos, esta alternativa es mucho más segura que el ACL, pero para nuestra tpologia implementar este tunnel significaba tener que deshacernos del tunnel ipv6ip para poder implementar este por lo que descartamos esta alternativa para asi no perder el trabajo realizado el laboratorio pasado 
+
+Opción VPN: Esta alternativa fue la que finalemente se eligio para implementar, más alla de ser la alternativa restante, descidimos usar esta ya que garantiza una muy buena seguridad, con una configuración medianamente sencilla, que sera explicada más adelante, y no involucraba la modificación ni eliminación de ninguan aspecto configurado en el anterior laboratorio, este protocolo en rasgos generales es una encriptación de paquetes entre estos dos puntos que son transportados y cuando llegan al otro router si se cuenta con las credenciales correctas para desencriptar el paquete este lo puede hacer generando asi conexión segura ya que solo permitira aquellos paquetes que sean provenientes del otro extremo de la red.
 
 ## Enrutamiento
 Como bien mencionamos anteriormente, gran parte de los protocolos de enrutamiento son específicados por la guía de laboratorio, por lo que solo tuvimos que considerar alternativas en dos casos:
@@ -591,7 +601,7 @@ Con este comando aseguramos que el ISP_BOG sepa con que dirección debe desencri
 
 ## Crypto isakmp Policy
 
-Una vez tenemos configurado la llava con la cual nuestros routers sabran la clave para desencriptar los paquetes que sean enviados entre ellos necesitamos generar la comuniccación entre ellos, para esto necesitamos configurar las politicas que seguira el isakmp. Los comandos necesarios para este eapartado seran los siguientes 
+Una vez tenemos configurado la llave con la cual nuestros routers sabran la clave para desencriptar los paquetes que sean enviados entre ellos necesitamos generar la comuniccación entre ellos, para esto necesitamos configurar las politicas que seguira el isakmp. Los comandos necesarios para este eapartado seran los siguientes 
 
 ```
 ISP_BOG(config)# crypto isakmp policy 10 
