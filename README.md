@@ -509,7 +509,7 @@ R1_BOG(cofig)#snmp-server community PRIVATEBOG RO
 
 ![Existencia SNMP Community Strings](Image/SNMP_COMMUNITY_STRINGS.png)
 
-De esta manera, ya se habrían creado los protocolos SNMP en cada una de las Intranets, sin embargo, para cumplir con los requerimientos, fue necesario hacer uso del servicio de ACL's nuevamente coin el propósito de bloquear el acceso a los puertos 161 y 162 de ciertas VLAN's (Ambos puertos correspondientes al servicio SNMP). Para ello se crearon nuevas ACL's:
+De esta manera, ya se habrían creado los protocolos SNMP en cada una de las Intranets, sin embargo, para cumplir con los requerimientos, con base a nuestros concimientos previos adquiridos en la asignatura, decidimos hacer uso del servicio de ACL's nuevamente con el propósito de bloquear el acceso a los puertos 161 y 162 de ciertas VLAN's (Ambos puertos correspondientes al servicio SNMP). Para ello se crearon nuevas ACL's:
 
 ```
 R1_BOG(config)#ipv6 access-list NO-SNMP-ING
